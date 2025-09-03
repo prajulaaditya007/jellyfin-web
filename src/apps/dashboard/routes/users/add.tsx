@@ -22,6 +22,9 @@ type ItemsArr = {
     Id?: string;
 };
 
+// Reserved characters that should not be allowed in usernames
+const INVALID_USERNAME_CHARS = /[/\\:*?"<>|]/;
+
 const UserNew = () => {
     const [ channelsItems, setChannelsItems ] = useState<ItemsArr[]>([]);
     const [ mediaFoldersItems, setMediaFoldersItems ] = useState<ItemsArr[]>([]);
@@ -113,6 +116,12 @@ const UserNew = () => {
             const userInput: UserInput = {};
             userInput.Name = (page.querySelector('#txtUsername') as HTMLInputElement).value.trim();
             userInput.Password = (page.querySelector('#txtPassword') as HTMLInputElement).value;
+
+            if (INVALID_USERNAME_CHARS.test(userInput.Name)) {
+                toast(globalize.translate('ErrorInvalidUsername'));
+                loading.hide();
+                return;
+            }
 
             window.ApiClient.createUser(userInput).then(function (user) {
                 if (!user.Id || !user.Policy) {
